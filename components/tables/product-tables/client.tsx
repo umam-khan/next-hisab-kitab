@@ -8,29 +8,29 @@ import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { columns } from "./columns";
 
-interface ProductsClientProps {
-  data: User[];
-}
+// interface ProductsClientProps {
+//   data: User[];
+// }
 
-export const UserClient: React.FC<ProductsClientProps> = ({ data }) => {
+export const ProductClient:any = ({ data }: any) => {
   const router = useRouter();
 
   return (
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`Users (${data.length})`}
-          description="Manage users (Client side table functionalities.)"
+          title={`Products (${data.length})`}
+          description="Manage your products"
         />
         <Button
           className="text-xs md:text-sm"
-          onClick={() => router.push(`/dashboard/user/new`)}
+          onClick={() => router.push(`/dashboard/product/createaudio`)}
         >
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
       </div>
       <Separator />
-      <DataTable searchKey="name" columns={columns} data={data} />
+      <DataTable searchKey="product_name" columns={columns} data={data} />
     </>
   );
 };

@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+
+import { createProduct } from "@/app/api/db/apis";
 // import FileUpload from "@/components/FileUpload";
 import { useToast } from "../ui/use-toast";
 import FileUpload from "../file-upload";
@@ -41,18 +43,33 @@ const ImgSchema = z.object({
 });
 export const IMG_MAX_LIMIT = 3;
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "Product Name must be at least 3 characters" }),
-  imgUrl: z
-    .array(ImgSchema)
-    .max(IMG_MAX_LIMIT, { message: "You can only add up to 3 images" })
-    .min(1, { message: "At least one image must be added." }),
-  description: z
-    .string()
-    .min(3, { message: "Product description must be at least 3 characters" }),
-  price: z.coerce.number(),
-  category: z.string().min(1, { message: "Please select a category" }),
+  Name: z
+    .string(),
+    // .min(3, { message: "Product Name must be at least 3 characters" }),
+  Brand: z
+    .string(),
+    // .min(3, { message: "Product Brand must be at least 3 characters" }),
+  Price: z
+    .string(),
+    // .min(1, { message: "Product Price must be at least 1 character" }),
+  Category: z
+    .string(),
+    // .min(3, { message: "Product Category must be at least 3 characters" }),
+  // imgUrl: z
+  //   .array(ImgSchema)
+  //   .max(IMG_MAX_LIMIT, { message: "You can only add up to 3 images" })
+  //   .min(1, { message: "At least one image must be added." }),
+  Quantity: z
+    .string(),
+    // .min(3, { message: "Product Quantity must be at least 3 characters" }),
+  Threshold: z
+    .string(),
+    // .min(1, { message: "Product Quantity must be at least 1 characters" }),
+  NetWeight: z
+    .string(),
+    // .min(1, { message: "Product Quantity must be at least 1 characters" }),
+  // ProductId: z.coerce.number(),
+  // category: z.string().min(1, { message: "Please select a category" }),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -77,14 +94,25 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const toastMessage = initialData ? "Product updated." : "Product created.";
   const action = initialData ? "Save changes" : "Create";
 
+  //form states
+  const [Name, setName] = useState<string>("")
+  const [Brand, setBrand] = useState<string>("")
+  const [Quantity, setQuantity] = useState<string>("")
+  const [Net_Weight, setNet_Weight] = useState<string>("")
+  const [Price, setPrice] = useState<string>("")
+  const [Category, setCategory] = useState<string>("")
+  const [Threshold, setThreshold] = useState<string>("")
+
   const defaultValues = initialData
     ? initialData
     : {
-        name: "",
-        description: "",
-        price: 0,
-        imgUrl: [],
-        category: "",
+        Name: "",
+        Brand: "",
+        Category: "",
+        Quantity: "",
+        NetWeight: "",
+        Threshold: "",
+        Price: "",
       };
 
   const form = useForm<ProductFormValues>({
@@ -95,19 +123,40 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
-      if (initialData) {
+      const formdata = {
+        'brand': Brand,
+        'quantity': Number(Quantity),
+        'netweight': Net_Weight,
+        'category': Category,
+        'price':Number(Price),
+        'product_name': Name,
+        'threshold' : Number(Threshold),
+        'Language' : 'English',
+        'user_id' : 'f1f35a09-0c4a-4378-9693-a82047a2b629'
+      }
+      const result = await createProduct(formdata)
+      console.log(`after insert : ${result}`)
+      if (result.success) {
+        setLoading(false);
+        toast({
+          variant: "default",
+          title: "successful",
+          description: "Item has been added",
+        });
         // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+        router.push(`/dashboard/product`);
       } else {
         // const res = await axios.post(`/api/products/create-product`, data);
         // console.log("product", res);
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
       }
-      router.refresh();
-      router.push(`/dashboard/products`);
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
+      // router.refresh();
+      
+      
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -132,7 +181,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   };
 
-  const triggerImgUrlValidation = () => form.trigger("imgUrl");
+  // const triggerImgUrlValidation = () => form.trigger("imgUrl");
 
   return (
     <>
@@ -161,6 +210,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
+          {/* FILE/IMAGE UPLOAD COMPONENT 
           <FormField
             control={form.control}
             name="imgUrl"
@@ -177,11 +227,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <div className="md:grid md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
-              name="name"
+              name="Name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
@@ -190,6 +240,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="Product name"
                       {...field}
+                      value={Name}
+                      onChange={(e) => {
+                        setName(e.target.value)
+                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -198,15 +252,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="description"
+              name="Brand"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Brand</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="Product description"
+                      placeholder="Brand"
                       {...field}
+                      value={Brand}
+                      onChange={(e) => 
+                        { 
+                          setBrand(e.target.value)
+                        }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -215,18 +274,110 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="price"
+              name="Category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Category"
+                      {...field}
+                      value={Category} 
+                      onChange={(e) => {
+                        setCategory(e.target.value)
+                    }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="Quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Quantity</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Quantity"
+                      {...field}
+                      value={Quantity} 
+                      onChange={(e) => {
+                        setQuantity(e.target.value)
+                    }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="NetWeight"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Net Weight</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Net Weight"
+                      {...field}
+                      value={Net_Weight}
+                      onChange={(e) => {
+                        setNet_Weight(e.target.value)
+                    }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="Threshold"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Threshold</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Threshold"
+                      {...field}
+                      value={Threshold}
+                      onChange={(e) => {
+                        setThreshold(e.target.value)
+                    }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="Price"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
                   <FormControl>
-                    <Input type="number" disabled={loading} {...field} />
+                    <Input
+                      disabled={loading}
+                      placeholder="Price"
+                      {...field}
+                      value={Price}
+                      onChange={(e) => {
+                        setPrice(e.target.value)
+                    }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="category"
               render={({ field }) => (
@@ -247,7 +398,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {/* @ts-ignore  */}
                       {categories.map((category) => (
                         <SelectItem key={category._id} value={category._id}>
                           {category.name}
@@ -258,7 +408,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
           <Button disabled={loading} className="ml-auto" type="submit">
             {action}

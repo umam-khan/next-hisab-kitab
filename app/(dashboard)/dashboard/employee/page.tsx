@@ -39,7 +39,7 @@ export default async function page({ searchParams }: paramsProps) {
         <div className="flex items-start justify-between">
           <Heading
             title={`Employee (${totalUsers})`}
-            description="Manage employees (Server side table functionalities.)"
+            description="Manage your employees "
           />
 
           <Link

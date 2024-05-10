@@ -25,20 +25,36 @@ export const columns: ColumnDef<User>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
-    header: "NAME",
+    accessorKey: "product_name",
+    header: "PRODUCT ID",
+  },
+  // {
+  //   accessorKey: "Name",
+  //   header: "NAME",
+  // },
+  {
+    accessorKey: "brand",
+    header: "BRAND",
   },
   {
-    accessorKey: "company",
-    header: "COMPANY",
+    accessorKey: "quantity",
+    header: "QUANTITY",
   },
   {
-    accessorKey: "role",
-    header: "ROLE",
+    accessorKey: "netweight",
+    header: "NET WEIGHT",
   },
   {
-    accessorKey: "status",
-    header: "STATUS",
+    accessorKey: "category",
+    header: "CATEGORY",
+  },
+  {
+    accessorKey: "price",
+    header: "PRICE",
+  },
+  {
+    accessorKey: "threshold",
+    header: "THRESHOLD",
   },
   {
     id: "actions",

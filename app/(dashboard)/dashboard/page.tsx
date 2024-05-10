@@ -2,6 +2,7 @@ import { CalendarDateRangePicker } from "@/components/date-range-picker";
 import { Overview } from "@/components/overview";
 import { RecentSales } from "@/components/recent-sales";
 import { Button } from "@/components/ui/button";
+import MyDialog from "@/components/dashboard/myDialog";
 import {
   Card,
   CardContent,
@@ -22,22 +23,26 @@ export default function page() {
           </h2>
           <div className="hidden md:flex items-center space-x-2">
             <CalendarDateRangePicker />
-            <Button>Download</Button>
+            {/* <Button>Download</Button> */}
+            
           </div>
         </div>
         <Tabs defaultValue="overview" className="space-y-4">
+          <div className="flex justify-between">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="analytics" disabled>
               Analytics
             </TabsTrigger>
           </TabsList>
+          <MyDialog />
+          </div>
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Revenue
+                    Total Expense
                   </CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -53,7 +58,7 @@ export default function page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$45,231.89</div>
+                  <div className="text-2xl font-bold">45,231,089 Rs</div>
                   <p className="text-xs text-muted-foreground">
                     +20.1% from last month
                   </p>
@@ -62,7 +67,7 @@ export default function page() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Subscriptions
+                    Products
                   </CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -147,9 +152,9 @@ export default function page() {
               </Card>
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
+                  <CardTitle>Recent Purchases</CardTitle>
                   <CardDescription>
-                    You made 265 sales this month.
+                    You bought 265 items this month.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
