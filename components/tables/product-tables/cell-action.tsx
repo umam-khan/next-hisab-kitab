@@ -27,12 +27,12 @@ export const CellAction  = <TData,>({ row, onEdit, onDelete,data }: CellActionPr
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {
-    setLoading(true);
-    // onDelete(data.user_id);
-    setLoading(false);
-    setOpen(false);
-  };
+  // const onConfirm = async () => {
+  //   setLoading(true);
+  //   // onDelete(data.user_id);
+  //   setLoading(false);
+  //   setOpen(false);
+  // };
 
   return (
     <>

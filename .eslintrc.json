@@ -6,6 +6,7 @@
     "import/no-unresolved": "error",
     "import/named": "off",
     "no-console": "warn",
-    "react/no-unescaped-entities": 0
+    "react/no-unescaped-entities": 0,
+    "no-unescaped-entities": "off"
   }
 }

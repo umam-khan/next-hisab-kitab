@@ -12,12 +12,16 @@ import { Employee } from "@/constants/data";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-
-interface CellActionProps {
-  data: Employee;
+import { Row } from "@tanstack/react-table";
+interface CellActionProps<TData> {
+  data: Employee,
+  row: Row<TData>;
+  onEdit: (value: TData) => void;
+  onDelete: (value: TData) => void;
+  // onDelete: (userId: string) => void;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellAction = <TData,>({ row, onEdit, onDelete,data }: CellActionProps<TData>) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -29,8 +33,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
         loading={loading}
+        onDelete={onDelete}
+        row={row}
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
