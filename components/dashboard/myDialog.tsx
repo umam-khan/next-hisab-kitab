@@ -156,8 +156,7 @@ const handleUpdate = async () => {
             How would you like to add
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <div className="flex justify-between space-y-2">
+        <DialogFooter className="flex justify-between">
             <Button onClick={()=> {
                 router.push(`/dashboard/product/create`)
             }} size="sm">
@@ -168,7 +167,9 @@ const handleUpdate = async () => {
             }} size="sm">
               using voice
             </Button>
-            <Button size="sm">
+            <Button onClick={()=> {
+                router.push(`/dashboard/product/createimage`)
+            }} size="sm">
               using image
             </Button>
             <Button size="sm" onClick={()=> {
@@ -176,7 +177,6 @@ const handleUpdate = async () => {
                 }}>
                 back
               </Button>
-          </div>
         </DialogFooter>
       </DialogContent>
       )}
@@ -229,7 +229,7 @@ const handleUpdate = async () => {
             />
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="py-2">
         <DialogClose asChild>
             <Button type="button" size="sm" onClick={()=> {
                     setStep("");

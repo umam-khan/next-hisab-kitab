@@ -29,8 +29,7 @@ const formSchema = z.object({
     required_error: "required field",
     invalid_type_error: "phone number is required",
   })
-  .min(10)
-  .max(10),
+  .min(10),
   city: z.string()
 });
 
