@@ -21,15 +21,15 @@ import * as z from "zod";
 const supabase = clientConnectionWithSupabase()
 const formSchema = z.object({
   email: z.string().email({ message: "Enter a valid email address" }),
-  password: z.string().min(8, { message: "Password is too short" })
+  password: z.string().min(5, { message: "Password is too short" })
   .max(20, { message: "Password is too long" }),
   username: z.string(),
   language: z.string(),
-  contact: z.number({
-    required_error: "required field",
-    invalid_type_error: "phone number is required",
-  })
-  .min(10),
+  contact: z
+  .number()
+  .refine((value) => Number.isInteger(value) && value >= 1000000000 && value <= 9999999999, {
+    message: "Invalid phone number format",
+  }),
   city: z.string()
 });
 
