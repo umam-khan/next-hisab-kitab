@@ -26,8 +26,8 @@ const formSchema = z.object({
   username: z.string(),
   language: z.string(),
   contact: z
-  .number()
-  .refine((value) => Number.isInteger(value) && value >= 1000000000 && value <= 9999999999, {
+  .string()
+  .refine((value) => /^\d{10}$/.test(value), {
     message: "Invalid phone number format",
   }),
   city: z.string()
