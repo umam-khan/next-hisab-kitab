@@ -2,7 +2,6 @@
 import clientConnectionWithSupabase from "@/lib/supabase";
 const supabase = clientConnectionWithSupabase()
 export const getProducts = async (userId : any) => {
-    const supabase = clientConnectionWithSupabase();
     let { data: products, error } = await supabase
         .from('inventory')
         .select("*")
@@ -17,7 +16,6 @@ export const getProducts = async (userId : any) => {
 }
 
 export const createProduct = async (formdata: any) => {
-    const supabase = clientConnectionWithSupabase();
     console.log(formdata);
     const { data, error } = await supabase
         .from('inventory')
@@ -34,7 +32,6 @@ export const createProduct = async (formdata: any) => {
   }
 
   export const deleteProduct = async (product_id : any) => {
-    const supabase = clientConnectionWithSupabase();
     console.log(product_id);
     
     const { error } = await supabase
@@ -51,7 +48,6 @@ export const createProduct = async (formdata: any) => {
   }
 
   export const updateProduct = async (name : any, brand : any, user_id : any, updateData : any) => {
-    const supabase = clientConnectionWithSupabase();
     console.log("Attempting to update product with name:", name, "and brand:", brand);
     console.log("Update data:", updateData);
   

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label"
-import { Textarea } from "../ui/textarea";
+// import { Textarea } from "../ui/textarea";
 import { useToast } from "../ui/use-toast";
 import { updateProduct } from "@/app/api/db/apis";
 // import { useTaskStore } from "@/lib/store";
@@ -27,8 +27,8 @@ export default function MyDialog() {
     const [name,setName] = useState("");
     const [brand,setBrand] = useState("");
     //new
-    const [newBrand,setNewBrand] = useState("");
-    const [newName,setNewName] = useState("");
+    // const [newBrand,setNewBrand] = useState("");
+    // const [newName,setNewName] = useState("");
     const [newQuantity,setNewQuantity] = useState("");
 
   const handleDelete = async () => {
@@ -72,8 +72,6 @@ export default function MyDialog() {
     }
 };
 const handleUpdate = async () => {
-  const supabase = clientConnectionWithSupabase();
-  
   const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
   console.log("Attempting to updateitem with name:", name, "and brand:", brand);
