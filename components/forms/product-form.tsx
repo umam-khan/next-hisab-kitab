@@ -121,6 +121,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   });
 
   const onSubmit = async (data: ProductFormValues) => {
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
     try {
       setLoading(true);
       const formdata = {
@@ -131,8 +133,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         'price':Number(Price),
         'product_name': Name,
         'threshold' : Number(Threshold),
-        'Language' : 'English',
-        'user_id' : 'f1f35a09-0c4a-4378-9693-a82047a2b629'
+        'Language' : user.language,
+        'user_id' : user.user_id
       }
       const result = await createProduct(formdata)
       console.log(`after insert : ${result}`)

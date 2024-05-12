@@ -3,7 +3,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "./cell-action";
 import { User } from "@/constants/data";
 import { Checkbox } from "@/components/ui/checkbox";
-
+const onDelete = () => {
+  alert("deleted");
+}
+const onEdit = () => {
+  alert("edited");
+}
 export const columns: ColumnDef<User>[] = [
   {
     id: "select",
@@ -26,12 +31,9 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     accessorKey: "product_name",
-    header: "PRODUCT ID",
+    header: "NAME",
   },
-  // {
-  //   accessorKey: "Name",
-  //   header: "NAME",
-  // },
+
   {
     accessorKey: "brand",
     header: "BRAND",
@@ -58,6 +60,6 @@ export const columns: ColumnDef<User>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellAction row={row} onEdit={onEdit} onDelete={onDelete} data={row.original} />,
   },
 ];

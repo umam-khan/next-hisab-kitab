@@ -2,20 +2,22 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-
-interface AlertModalProps {
+import { Row } from "@tanstack/react-table";
+interface AlertModalProps<TData>{
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
   loading: boolean;
+  row: Row<TData>;
+  onDelete: (value: TData) => void;
 }
 
-export const AlertModal: React.FC<AlertModalProps> = ({
+export const AlertModal = <TData,> ({
   isOpen,
   onClose,
-  onConfirm,
   loading,
-}) => {
+  onDelete,
+  row
+}: AlertModalProps<TData>) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -25,7 +27,12 @@ export const AlertModal: React.FC<AlertModalProps> = ({
   if (!isMounted) {
     return null;
   }
-
+  const handleDelete = () => {
+    // Call the onDelete function with the row data
+    onDelete(row.original);
+    // Close the modal
+    onClose();
+  };
   return (
     <Modal
       title="Are you sure?"
@@ -37,7 +44,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         <Button disabled={loading} variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+        <Button disabled={loading} variant="destructive" onClick={handleDelete}>
           Continue
         </Button>
       </div>

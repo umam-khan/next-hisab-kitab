@@ -80,44 +80,45 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
       price: "",
     },
   });
-  const onCreate = async () => {
-    if (audioFile.current) {
-      const formData = new FormData();
-      formData.append('file', audioFile.current);
-      formData.append('language', 'Hindi');
-      formData.append('operation', 'add');
-      try {
-        setLoading(true);
-        const response = await fetch('http://localhost:8000/get_details', {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-        setProduct_name(result.message.product_name);
-        setBrand(result.message.brand);
-        setCategory(result.message.category);
-        setQuantity(result.message.quantity);
-        setNetweight(result.message.Netweight);
-        setThreshold(result.message.threshold);
-        setPrice(result.message.price);
+  // const onCreate = async () => {
+  //   if (audioFile.current) {
+  //     const formData = new FormData();
+  //     formData.append('file', audioFile.current);
+  //     formData.append('language', 'Hindi');
+  //     formData.append('operation', 'add');
+  //     try {
+  //       setLoading(true);
+  //       const response = await fetch('http://localhost:8000/get_details', {
+  //         method: 'POST',
+  //         body: formData,
+  //       });
+  //       const result = await response.json();
+  //       console.log(result)
+  //       setProduct_name(result.message.product_name);
+  //       setBrand(result.message.brand);
+  //       setCategory(result.message.category);
+  //       setQuantity(result.message.quantity);
+  //       setNetweight(result.message.Netweight);
+  //       setThreshold(result.message.threshold);
+  //       setPrice(result.message.price);
 
-        toast({
-          variant: "default",
-          title: "Form Updated",
-          description: "Form fields have been updated with audio transcription results",
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error('Error submitting audio file:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "There was an error processing your request",
-        });
-        setLoading(false);
-      }
-    }
-  };
+  //       toast({
+  //         variant: "default",
+  //         title: "Form Updated",
+  //         description: "Form fields have been updated with audio transcription results",
+  //       });
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error('Error submitting audio file:', error);
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Error",
+  //         description: "There was an error processing your request",
+  //       });
+  //       setLoading(false);
+  //     }
+  //   }
+  // };
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -144,46 +145,124 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
     if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
+      console.log("recording done")
     }
   };
 
+  const onCreate = async () => {
+    if (audioFile.current) {
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : null;
+
+      const formData = new FormData();
+      formData.append('file', audioFile.current);
+      formData.append('language', user.language);
+      formData.append('operation', 'add');
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:8000/get_details', {
+          method: 'POST',
+          body: formData,
+        });
+        const result = await response.json();
+        console.log(result);
+        // Use setValue from react-hook-form to update the form fields
+        // form.setValue('product_name', result.message.Name);
+        // form.setValue('brand', result.message.Brand);
+        // form.setValue('category', result.message.Category);
+        // form.setValue('quantity', result.message.Quantity);
+        // form.setValue('netweight', result.message.Netweight);
+        // form.setValue('threshold', result.message.Threshold);
+        // form.setValue('price', result.message.Price);
+        form.reset({
+          product_name: result.message.Name || '',
+          brand: result.message.Brand || '',
+          category: result.message.Category || '',
+          quantity: result.message.Quantity ? result.message.Quantity.toString() : '0',
+          netweight: result.message.Netweight || '',
+          threshold: result.message.Threshold ? result.message.Threshold.toString() : '0',
+          price: result.message.Price ? result.message.Price.toString() : '0'
+      });
+      
+        
+        console.log(form.getValues())
+        toast({
+          variant: "default",
+          title: "Form Updated",
+          description: "Form fields have been updated with audio transcription results",
+        });
+        setLoading(false);
+      } catch (error) {
+        console.error('Error submitting audio file:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "There was an error processing your request",
+        });
+        setLoading(false);
+      }
+    }
+  };
+
+  
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
-      const formdata = {
-        'brand': brand,
-        'quantity': Number(quantity),
-        'netweight': netweight,
-        'category': category,
-        'price':Number(price),
-        'product_name': product_name,
-        'threshold' : Number(threshold),
-        'Language' : 'Hindi',
-        'user_id' : 'f1f35a09-0c4a-4378-9693-a82047a2b629'
+      
+      // Retrieve user details from local storage
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : null;
+      
+      if (!user || !user.user_id || !user.language) {
+        toast({
+          variant: "destructive",
+          title: "Failed",
+          description: "Missing user data. Please log in again.",
+        });
+        setLoading(false);
+        return;
       }
-      const result = await createProduct(formdata)
-      console.log(`after insert : ${result}`)
+      const formData = {
+        'brand': data.brand,
+        'quantity': Number(data.quantity),
+        'netweight': data.netweight,
+        'category': data.category,
+        'price': Number(data.price),
+        'product_name': data.product_name,
+        'threshold': Number(data.threshold),
+        'Language': user.language,  // Assuming 'user' is correctly defined and contains 'language'
+        'user_id': user.user_id     // Assuming 'user' is correctly defined and contains 'user_id'
+      };
+      console.log(`formdata before submitting: `, formData);
+      // const formdata = {
+      //   'brand': brand,
+      //   'quantity': Number(quantity),
+      //   'netweight': netweight,
+      //   'category': category,
+      //   'price': Number(price),
+      //   'product_name': product_name,
+      //   'threshold': Number(threshold),
+      //   'Language': user.language, // Set from local storage
+      //   'user_id': user.user_id   // Set from local storage
+      // }
+      // console.log(`formdata before submitting : ${formdata.brand},${formdata.threshold}, `)
+      const result = await createProduct(formData);
+      console.log(`after insert : ${result}`);
       if (result.success) {
         setLoading(false);
         toast({
           variant: "default",
-          title: "successful",
+          title: "Successful",
           description: "Item has been added",
         });
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
         router.push(`/dashboard/product`);
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: "There was a problem with your request.",
         });
       }
-      // router.refresh();
-      
-      
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -194,15 +273,22 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="flex flex-col">
-      <Heading title={'Add New Product'} description="Use your voice to record the data" />
+      <Heading
+        title={"Add New Product"}
+        description="Use your voice to record the data"
+      />
       <Separator />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 w-full">
-        <div className="md:grid md:grid-cols-3 gap-8">
-             <FormField
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 w-full"
+        >
+          <div className="md:grid md:grid-cols-3 gap-8">
+            <FormField
               control={form.control}
               name="product_name"
               render={({ field }) => (
@@ -212,11 +298,7 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                     <Input
                       disabled={loading}
                       placeholder="Name"
-                      {...field}
-                      value={product_name}
-                      onChange={(e) => {
-                        setProduct_name(e.target.value)
-                    }}
+                      {...field} // This already includes value, onChange, ref and should not be overridden
                     />
                   </FormControl>
                   <FormMessage />
@@ -234,11 +316,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="brand"
                       {...field}
-                      value={brand}
-                      onChange={(e) => 
-                        { 
-                          setBrand(e.target.value)
-                        }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -256,10 +333,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="category"
                       {...field}
-                      value={category} 
-                      onChange={(e) => {
-                        setCategory(e.target.value)
-                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -277,10 +350,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="quantity"
                       {...field}
-                      value={quantity} 
-                      onChange={(e) => {
-                        setQuantity(e.target.value)
-                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -298,10 +367,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="netweight"
                       {...field}
-                      value={netweight}
-                      onChange={(e) => {
-                        setNetweight(e.target.value)
-                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -319,10 +384,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="threshold"
                       {...field}
-                      value={threshold}
-                      onChange={(e) => {
-                        setThreshold(e.target.value)
-                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -340,10 +401,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
                       disabled={loading}
                       placeholder="price"
                       {...field}
-                      value={price}
-                      onChange={(e) => {
-                        setPrice(e.target.value)
-                    }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -352,15 +409,23 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
             />
           </div>
           <div className="flex justify-around">
-          <Button type="button" onClick={isRecording ? stopRecording : startRecording}>
-            {isRecording ? 'Stop Recording' : 'Start Recording'}
-          </Button>
-          <Button type="button" onClick={onCreate} disabled={loading} className="ml-auto">
-            {initialData ? 'Save Changes' : 'Fill Form'}
-          </Button>
-          <Button disabled={loading} className="ml-auto" type="submit">
-            submit 
-          </Button>
+            <Button
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+            >
+              {isRecording ? "Stop Recording" : "Start Recording"}
+            </Button>
+            <Button
+              type="button"
+              onClick={onCreate}
+              disabled={loading}
+              className="ml-auto"
+            >
+              {initialData ? "Save Changes" : "Fill Form"}
+            </Button>
+            <Button disabled={loading} className="ml-auto" type="submit">
+              submit
+            </Button>
           </div>
         </form>
       </Form>

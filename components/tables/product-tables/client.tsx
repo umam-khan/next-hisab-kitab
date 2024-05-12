@@ -7,12 +7,13 @@ import { User } from "@/constants/data";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { columns } from "./columns";
+import MyDialog from "@/components/dashboard/myDialog";
 
 // interface ProductsClientProps {
 //   data: User[];
 // }
 
-export const ProductClient:any = ({ data }: any) => {
+export const ProductClient:any = ({ data,  handleDelete }: any) => {
   const router = useRouter();
 
   return (
@@ -22,12 +23,13 @@ export const ProductClient:any = ({ data }: any) => {
           title={`Products (${data.length})`}
           description="Manage your products"
         />
-        <Button
+        {/* <Button
           className="text-xs md:text-sm"
           onClick={() => router.push(`/dashboard/product/createaudio`)}
         >
           <Plus className="mr-2 h-4 w-4" /> Add New
-        </Button>
+        </Button> */}
+        <MyDialog />
       </div>
       <Separator />
       <DataTable searchKey="product_name" columns={columns} data={data} />

@@ -12,25 +12,36 @@ import { User } from "@/constants/data";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Row } from '@tanstack/react-table';
 
-interface CellActionProps {
-  data: User;
+interface CellActionProps<TData> {
+  data: User,
+  row: Row<TData>;
+  onEdit: (value: TData) => void;
+  onDelete: (value: TData) => void;
+  // onDelete: (userId: string) => void;
 }
 
-export const CellAction: React.FC<CellActionProps> = ({ data }) => {
+export const CellAction  = <TData,>({ row, onEdit, onDelete,data }: CellActionProps<TData>) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  const onConfirm = async () => {};
+  const onConfirm = async () => {
+    setLoading(true);
+    // onDelete(data.user_id);
+    setLoading(false);
+    setOpen(false);
+  };
 
   return (
     <>
       <AlertModal
         isOpen={open}
         onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
         loading={loading}
+        onDelete={onDelete}
+        row={row}
       />
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
@@ -43,7 +54,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
           <DropdownMenuItem
-            onClick={() => router.push(`/dashboard/user/`)}
+            onClick={() => onEdit(row.original)}
           >
             <Edit className="mr-2 h-4 w-4" /> Update
           </DropdownMenuItem>

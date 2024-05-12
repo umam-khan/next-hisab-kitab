@@ -10,8 +10,7 @@ export default function Header() {
       <nav className="h-14 flex items-center justify-between px-4">
         <div className="hidden lg:block">
           <Link
-            href={"https://github.com/Kiranism/next-shadcn-dashboard-starter"}
-            target="_blank"
+            href={"/"}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -32,7 +31,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <UserNav />
+          {/* <UserNav /> */}
           <ThemeToggle />
         </div>
       </nav>

@@ -5,11 +5,12 @@ export type User = {
   product_id: number;
   Name: string;
   Category: string;
-  'Net Weight': string;
+  netwieght: string;
   Brand: string;
   Price: string;
   Threshold: string;
   Quantity: string;
+  user_id:string
 };
 // export const users: User[] = [
 //   {
