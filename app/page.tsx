@@ -6,8 +6,7 @@ export default function Home() {
     const supabase = createClientComponentClient();
     const router = useRouter();
     const handleSignOut = async ()  => {
-        console.log("signing out")
-        await supabase.auth.signOut;
+        await supabase.auth.signOut();
         router.push("/login")
     }
   return (

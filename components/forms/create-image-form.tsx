@@ -1,33 +1,18 @@
 'use client'
-import { AudioRecorder } from 'react-audio-voice-recorder';
 import React, { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
+import { Form, FormField, FormItem, FormLabel, FormMessage, FormControl } from "@/components/ui/form";
 import { Heading } from "@/components/ui/heading";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";import { Trash } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { Separator } from "@/components/ui/separator";
 import { useToast } from '../ui/use-toast';
 import { createProduct } from "@/app/api/db/apis";
+import {useRouter } from 'next/navigation';
+import CameraDialog from './CameraDialog';
+import { DialogTrigger } from '@/components/ui/dialog';
 
 const formSchema = z.object({
   product_name: z.string(),
@@ -46,28 +31,17 @@ interface ProductFormProps {
   categories: any;
 }
 
-const ProductAudioForm: React.FC<ProductFormProps> = ({
+const ProductCameraForm: React.FC<ProductFormProps> = ({
   initialData,
   categories,
 }) => {
-  const params = useParams();
+
   const router = useRouter();
+
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const audioFile = useRef<File | null>(null);
-
-    //form states
-  const [product_name, setProduct_name] = useState<string>("")
-  const [brand, setBrand] = useState<string>("")
-  const [quantity, setQuantity] = useState<string>("")
-  const [netweight, setNetweight] = useState<string>("")
-  const [price, setPrice] = useState<string>("")
-  const [category, setCategory] = useState<string>("")
-  const [threshold, setThreshold] = useState<string>("")
-
-  // Initialize form with useForm hook
+  const [imageURL, setImageURL] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -80,131 +54,118 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
       price: "",
     },
   });
-  // const onCreate = async () => {
-  //   if (audioFile.current) {
-  //     const formData = new FormData();
-  //     formData.append('file', audioFile.current);
-  //     formData.append('language', 'Hindi');
-  //     formData.append('operation', 'add');
-  //     try {
-  //       setLoading(true);
-  //       const response = await fetch('http://localhost:8000/get_details', {
-  //         method: 'POST',
-  //         body: formData,
-  //       });
-  //       const result = await response.json();
-  //       console.log(result)
-  //       setProduct_name(result.message.product_name);
-  //       setBrand(result.message.brand);
-  //       setCategory(result.message.category);
-  //       setQuantity(result.message.quantity);
-  //       setNetweight(result.message.Netweight);
-  //       setThreshold(result.message.threshold);
-  //       setPrice(result.message.price);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
-  //       toast({
-  //         variant: "default",
-  //         title: "Form Updated",
-  //         description: "Form fields have been updated with audio transcription results",
-  //       });
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error('Error submitting audio file:', error);
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Error",
-  //         description: "There was an error processing your request",
-  //       });
-  //       setLoading(false);
+  const handleOpenCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      setStream(mediaStream);
+    } catch (error) {
+      console.error('Error opening camera:', error);
+    }
+  };
+
+  const handleCloseCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+  };
+
+  const handleTakePhoto = async () => {
+    if (!stream) return;
+
+    try {
+      const videoTrack = stream.getVideoTracks()[0];
+      const imageCapture = new (window as any).ImageCapture(videoTrack);
+      const photo = await imageCapture.takePhoto();
+
+      // Set the captured photo to the file input
+      const file = new File([photo], 'photo.jpg', { type: 'image/jpeg' });
+      const fileList = new DataTransfer();
+      fileList.items.add(file);
+
+      // Use a temporary variable to avoid direct assignment to an optional property
+      const files = fileList.files;
+      if (fileInputRef.current) {
+        fileInputRef.current.files = files;
+      }
+
+      setImageURL(URL.createObjectURL(photo));
+    } catch (error) {
+      console.error('Error taking photo:', error);
+    }
+  };
+  
+  // const handleTakePhoto = async () => {
+  //   try {
+  //     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  //     if ('ImageCapture' in window) {
+  //       const videoTrack = stream.getVideoTracks()[0];
+  //       const imageCapture = new (window as any).ImageCapture(videoTrack);
+  //       const photo = await imageCapture.takePhoto();
+  
+  //       // Set the captured photo to the file input
+  //       const file = new File([photo], 'photo.jpg', { type: 'image/jpeg' });
+  //       const fileList = new DataTransfer();
+  //       fileList.items.add(file);
+  
+  //       // Use a temporary variable to avoid direct assignment to an optional property
+  //       const files = fileList.files;
+  //       if (fileInputRef.current) {
+  //         fileInputRef.current.files = files;
+  //       }
+  
+  //       setImageURL(URL.createObjectURL(photo));
+  //     } else {
+  //       console.error('ImageCapture is not supported in this browser.');
   //     }
+  //   } catch (error) {
+  //     console.error('Error taking photo:', error);
   //   }
   // };
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      setMediaRecorder(recorder);
-      recorder.start();
-      setIsRecording(true);
-
-      const audioChunks : any = [];
-      recorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
-      };
-
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks);
-        audioFile.current = new File([audioBlob], 'recording.mp3', { type: 'audio/mp3' });
-      };
-    } catch (error) {
-      console.error('Error starting audio recording:', error);
-    }
-  };
-
-  const stopRecording = async() => {
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-      console.log("recording done")
-    }
-  };
-
-  const onCreate = async () => {
-    if (audioFile.current) {
-      const userString = localStorage.getItem('user');
-      const user = userString ? JSON.parse(userString) : null;
-
-      const formData = new FormData();
-      formData.append('file', audioFile.current);
-      formData.append('language', user.language);
-      formData.append('operation', 'add');
-      try {
-        setLoading(true);
-        const response = await fetch('http://3.87.43.3:8501/get_details', {
-          method: 'POST',
-          body: formData,
-        });
-        const result = await response.json();
-        console.log(result);
-        // Use setValue from react-hook-form to update the form fields
-        // form.setValue('product_name', result.message.Name);
-        // form.setValue('brand', result.message.Brand);
-        // form.setValue('category', result.message.Category);
-        // form.setValue('quantity', result.message.Quantity);
-        // form.setValue('netweight', result.message.Netweight);
-        // form.setValue('threshold', result.message.Threshold);
-        // form.setValue('price', result.message.Price);
-        form.reset({
-          product_name: result.message.Name || '',
-          brand: result.message.Brand || '',
-          category: result.message.Category || '',
-          quantity: result.message.Quantity ? result.message.Quantity.toString() : '0',
-          netweight: result.message.Netweight || '',
-          threshold: result.message.Threshold ? result.message.Threshold.toString() : '0',
-          price: result.message.Price ? result.message.Price.toString() : '0'
-      });
-      
-        
-        console.log(form.getValues())
-        toast({
-          variant: "default",
-          title: "Form Updated",
-          description: "Form fields have been updated with audio transcription results",
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error('Error submitting audio file:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "There was an error processing your request",
-        });
-        setLoading(false);
-      }
-    }
-  };
-
   
+  
+  
+
+  const fillForm = async () => {
+    if (!fileInputRef.current || !fileInputRef.current.files) return;
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
+    const formData = new FormData();
+    formData.append('file', fileInputRef.current.files[0]);
+    formData.append('language', user.language);
+    formData.append('operation', 'add');
+    try {
+      setLoading(true);
+      const response = await fetch('http://3.87.43.3:8501/get_imagedets', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      console.log(result);
+      form.reset({
+          product_name: result.data.Name || '',
+          brand: result.data.Brand || '',
+          category: result.data.Category || '',
+          quantity: result.data.Quantity ? result.data.Quantity.toString() : '0',
+          netweight: result.data.Netweight || '',
+          threshold: result.data.Threshold ? result.data.Threshold.toString() : '0',
+          price: result.data.Price ? result.data.Price.toString() : '0'
+      });
+      toast({
+        variant: "default",
+        title: "Form Filled",
+        description: "Form fields have been filled with photo data",
+      });
+      setLoading(false);
+    } catch (error) {
+      console.error('Error filling form from photo:', error);
+      setLoading(false);
+    }
+  };
+
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setLoading(true);
@@ -234,18 +195,6 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
         'user_id': user.user_id     // Assuming 'user' is correctly defined and contains 'user_id'
       };
       console.log(`formdata before submitting: `, formData);
-      // const formdata = {
-      //   'brand': brand,
-      //   'quantity': Number(quantity),
-      //   'netweight': netweight,
-      //   'category': category,
-      //   'price': Number(price),
-      //   'product_name': product_name,
-      //   'threshold': Number(threshold),
-      //   'Language': user.language, // Set from local storage
-      //   'user_id': user.user_id   // Set from local storage
-      // }
-      // console.log(`formdata before submitting : ${formdata.brand},${formdata.threshold}, `)
       const result = await createProduct(formData);
       console.log(`after insert : ${result}`);
       if (result.success) {
@@ -273,13 +222,11 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
       setLoading(false);
     }
   };
-  
-
   return (
     <div className="flex flex-col">
       <Heading
         title={"Add New Product"}
-        description="Use your voice to record the data"
+        description="Use your camera to take a photo"
       />
       <Separator />
       <Form {...form}>
@@ -288,7 +235,40 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
           className="space-y-8 w-full"
         >
           <div className="md:grid md:grid-cols-3 gap-8">
-            <FormField
+          {imageURL && (
+              <img src={imageURL} alt="Captured" className="w-full" />
+            )}
+            {/* {imageURL && (
+              <img src={imageURL} alt="Captured" className="w-full" />
+            )}
+            
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+            /> */}
+            {stream && (
+              <video
+                ref={(video) => {
+                  if (video) {
+                    video.srcObject = stream;
+                    video.play();
+                  }
+                }}
+                className="w-full"
+              />
+            )}
+
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+            />
+
+
+<FormField
               control={form.control}
               name="product_name"
               render={({ field }) => (
@@ -409,22 +389,41 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
             />
           </div>
           <div className="flex justify-around">
-            <Button
+          {stream && (
+              <Button
+                type="button"
+                onClick={handleCloseCamera}
+                disabled={loading}
+              >
+                Close Camera
+              </Button>
+            )}
+          <Button
               type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              {isRecording ? "Stop Recording" : "Start Recording"}
-            </Button>
-            <Button
-              type="button"
-              onClick={onCreate}
+              onClick={handleOpenCamera}
               disabled={loading}
-              className="ml-auto"
             >
-              {initialData ? "Save Changes" : "Fill Form"}
+              Open Camera
             </Button>
-            <Button disabled={loading} className="ml-auto" type="submit">
-              submit
+            <Button
+              type="button"
+              onClick={handleTakePhoto}
+              disabled={loading}
+            >
+              Take Photo
+            </Button>
+            <Button
+              type="button"
+              onClick={fillForm}
+              disabled={loading}
+            >
+              Fill Form
+            </Button>
+            <Button
+              type="submit"
+              disabled={loading}
+            >
+              Submit
             </Button>
           </div>
         </form>
@@ -433,4 +432,4 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
   );
 };
 
-export default ProductAudioForm;
+export default ProductCameraForm;
