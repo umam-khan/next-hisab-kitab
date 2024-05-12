@@ -11,8 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from '../ui/use-toast';
 import { createProduct } from "@/app/api/db/apis";
 import {useRouter } from 'next/navigation';
-import CameraDialog from './CameraDialog';
-import { DialogTrigger } from '@/components/ui/dialog';
+// import CameraDialog from './CameraDialog';
+// import { DialogTrigger } from '@/components/ui/dialog';
 
 const formSchema = z.object({
   product_name: z.string(),
