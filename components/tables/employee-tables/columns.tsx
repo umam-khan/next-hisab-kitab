@@ -3,7 +3,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Employee } from "@/constants/data";
 import { ColumnDef } from "@tanstack/react-table";
 import { CellAction } from "./cell-action";
-
+const onDelete = () => {
+  alert("deleted");
+}
+const onEdit = () => {
+  alert("edited");
+}
 export const columns: ColumnDef<Employee>[] = [
   {
     id: "select",
@@ -46,6 +51,6 @@ export const columns: ColumnDef<Employee>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />,
+    cell: ({ row }) => <CellAction row={row} onEdit={onEdit} onDelete={onDelete} data={row.original} />,
   },
 ];

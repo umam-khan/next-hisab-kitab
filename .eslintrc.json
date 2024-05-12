@@ -6,7 +6,8 @@
     "import/no-unresolved": "error",
     "import/named": "off",
     "no-console": "warn",
-    "react/no-unescaped-entities": 0,
-    "no-unescaped-entities": "off"
+    "no-unescaped-entities": "off",
+    "react/no-unescaped-entities": "off",
+    "@next/next/no-page-custom-font": "off"
   }
 }
