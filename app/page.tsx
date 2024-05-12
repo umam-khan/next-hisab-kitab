@@ -7,7 +7,7 @@ export default function Home() {
     const router = useRouter();
     const handleSignOut = async ()  => {
         await supabase.auth.signOut();
-        router.push("/login")
+        router.push("/sign-in")
     }
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">

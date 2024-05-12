@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
 
   //define the apths
   const restrictedPaths = ["/","/dashboard"];
-  const authPaths = ["/login"];
+  const authPaths = ["/login","/sign-in"];
 
   // redirect authenticated users from auth pages to home page
   if(authPaths.includes(path) && session)
@@ -33,7 +33,7 @@ export async function middleware(req: NextRequest) {
   if(restrictedPaths.includes(path) && !session)
     {
       console.log("redirecting", session);
-      return NextResponse.redirect(new URL("/login",req.url));
+      return NextResponse.redirect(new URL("/sign-in",req.url));
       
 
     }
