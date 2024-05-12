@@ -17,7 +17,8 @@ interface Product {
 }
 
 const breadcrumbItems = [{ title: "Product", link: "/dashboard/product" }];
-export default function page() {
+
+export default function Page() {
   const [products, setProducts] = useState<Product[]>([]);
   useEffect(() => {
     const userString = localStorage.getItem('user');
