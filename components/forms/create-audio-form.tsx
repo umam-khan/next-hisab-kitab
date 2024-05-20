@@ -160,7 +160,7 @@ const ProductAudioForm: React.FC<ProductFormProps> = ({
       formData.append('operation', 'add');
       try {
         setLoading(true);
-        const response = await fetch('http://3.87.43.3:8501/get_details', {
+        const response = await fetch('http://34.204.63.54/get_details', {
           method: 'POST',
           body: formData,
         });

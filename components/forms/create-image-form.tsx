@@ -138,7 +138,7 @@ const ProductCameraForm: React.FC<ProductFormProps> = ({
     formData.append('operation', 'add');
     try {
       setLoading(true);
-      const response = await fetch('http://3.87.43.3:8501/get_imagedets', {
+      const response = await fetch('http://34.204.63.54/get_imagedets', {
         method: 'POST',
         body: formData,
       });
