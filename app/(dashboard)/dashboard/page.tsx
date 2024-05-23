@@ -1,3 +1,4 @@
+'use client'
 import { CalendarDateRangePicker } from "@/components/date-range-picker";
 import { Overview } from "@/components/overview";
 import { RecentSales } from "@/components/recent-sales";
@@ -13,8 +14,75 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Greeting from "./greeting";
+import { useEffect, useState } from 'react';
+import clientConnectionWithSupabase from "@/lib/supabase";
+import { getProducts, deleteProduct } from "@/app/api/db/apis";
+const supabase = clientConnectionWithSupabase()
 
 export default function Page() {
+  const [inventoryCount, setInventoryCount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [totalQuantity, setTotalQuantity] = useState(0);
+  const [brandCount, setBrandCount] = useState(0);
+  useEffect(() => {
+    const fetchInventoryData = async () => {
+      const userString = localStorage.getItem('user');
+      if (!userString) {
+        console.error('No user data found in local storage');
+        return;
+      }
+
+      let user;
+      try {
+        user = JSON.parse(userString);
+      } catch (e) {
+        console.error('Error parsing user data:', e);
+        return;
+      }
+
+      if (!user || !user.user_id) {
+        console.error('User object is missing or does not have user_id');
+        return;
+      }
+
+      const userId = user.user_id;
+
+      const result:any = await getProducts(userId);
+    console.log("Fetched products:", result);
+      if (result.success) {
+        setInventoryCount(result.products.length);
+
+      const totalPrice = result.products.reduce((acc:any, product:any) => acc + (product.price || 0), 0);
+      setTotalPrice(totalPrice);
+      console.log(totalPrice)
+      const totalQuantity = result.products.reduce((acc:any, product:any) => acc + (product.quantity || 0), 0);
+      setTotalQuantity(totalQuantity);
+      console.log(totalQuantity)
+      }
+      else {
+        console.error('Error fetching products');
+        return;
+    };
+    // Fetch unique brand count
+//     let { data: uniqueBrandsCount, error } = await supabase
+//   .from('inventory')
+//   .select('brand_name')
+//   .eq('user_id', userId)
+//   .distinct('brand_name')
+//   .count();
+
+
+// if (brandError) {
+//   console.error('Error fetching brand count:', brandError.message);
+// } else if (brandData) {
+//   setBrandCount(brandData[0].count);
+// }
+  }
+    fetchInventoryData();
+  }, []);
+
+ 
+
   return (
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -59,16 +127,16 @@ export default function Page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">45,231,089 Rs</div>
+                  <div className="text-2xl font-bold">{totalPrice}</div>
                   <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
+                    
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Products
+                    Total Quantity
                   </CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -86,15 +154,15 @@ export default function Page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+2350</div>
+                  <div className="text-2xl font-bold">+{totalQuantity}</div>
                   <p className="text-xs text-muted-foreground">
-                    +180.1% from last month
+                    
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Sales</CardTitle>
+                  <CardTitle className="text-sm font-medium">Products</CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -110,16 +178,16 @@ export default function Page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold">+{inventoryCount}</div>
+                  {/* <p className="text-xs text-muted-foreground">
                     +19% from last month
-                  </p>
+                  </p> */}
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Active Now
+                    Brands
                   </CardTitle>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -135,10 +203,10 @@ export default function Page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold">+{brandCount}</div>
+                  {/* <p className="text-xs text-muted-foreground">
                     +201 since last hour
-                  </p>
+                  </p> */}
                 </CardContent>
               </Card>
             </div>
@@ -155,7 +223,7 @@ export default function Page() {
                 <CardHeader>
                   <CardTitle>Recent Purchases</CardTitle>
                   <CardDescription>
-                    You bought 265 items this month.
+                    You bought 165 items this month.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
