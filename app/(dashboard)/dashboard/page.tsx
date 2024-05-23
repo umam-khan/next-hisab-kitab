@@ -18,12 +18,24 @@ import { useEffect, useState } from 'react';
 import clientConnectionWithSupabase from "@/lib/supabase";
 import { getProducts, deleteProduct } from "@/app/api/db/apis";
 const supabase = clientConnectionWithSupabase()
-
+interface Product {
+  product_name: string;
+  brand: string;
+  category: string;
+  quantity: number; // Using number type for integers in TypeScript
+  netweight: string; // Assuming netweight is a string, specify number if it's numerical
+  threshold: number;
+  price: number; // Using number type for floats in TypeScript
+  user_id: string; // UUID is a string
+  created_at: string; // Date as string; you could also use Date type if working with Date objects
+}
 export default function Page() {
   const [inventoryCount, setInventoryCount] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalQuantity, setTotalQuantity] = useState(0);
   const [brandCount, setBrandCount] = useState(0);
+  const [prods, setLatestProducts] = useState<Product[]>([]);
+  let numberOfUniqueBrandNames : any;
   useEffect(() => {
     const fetchInventoryData = async () => {
       const userString = localStorage.getItem('user');
@@ -63,20 +75,24 @@ export default function Page() {
         console.error('Error fetching products');
         return;
     };
-    // Fetch unique brand count
-//     let { data: uniqueBrandsCount, error } = await supabase
-//   .from('inventory')
-//   .select('brand_name')
-//   .eq('user_id', userId)
-//   .distinct('brand_name')
-//   .count();
-
-
-// if (brandError) {
-//   console.error('Error fetching brand count:', brandError.message);
-// } else if (brandData) {
-//   setBrandCount(brandData[0].count);
-// }
+    const uniqueBrandNames = new Set(result.products.map((product: any) => { numberOfUniqueBrandNames
+       return product.brand 
+      }));
+      setBrandCount(uniqueBrandNames.size);
+console.log('brand count iss:',numberOfUniqueBrandNames);
+let { data: prods, error } = await supabase
+  .from('inventory')
+  .select('*')
+  .eq('user_id', userId)
+  .order('created_at', { ascending: false })
+  .range(0, 4);
+  if (!error) {
+    setLatestProducts(prods || []);
+    console.log("Setting LATEST products:", result.products);
+} else {
+    console.log("Failed to fetch LATEST products, setting empty array.");
+    setLatestProducts([]);
+}
   }
     fetchInventoryData();
   }, []);
@@ -127,7 +143,7 @@ export default function Page() {
                   </svg>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalPrice}</div>
+                  <div className="text-2xl font-bold">Rs{totalPrice}</div>
                   <p className="text-xs text-muted-foreground">
                     
                   </p>
@@ -221,13 +237,13 @@ export default function Page() {
               </Card>
               <Card className="col-span-4 md:col-span-3">
                 <CardHeader>
-                  <CardTitle>Recent Purchases</CardTitle>
+                  <CardTitle>Recent Products</CardTitle>
                   <CardDescription>
-                    You bought 165 items this month.
+                    You bought {prods.length} items recently
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <RecentSales />
+                  <RecentSales prods={prods}/>
                 </CardContent>
               </Card>
             </div>
